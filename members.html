@@ -16,39 +16,50 @@
 <body>
 
     <h1>আমাদের সদস্যবৃন্দ</h1>
-    <div id="member-list" class="member-container">
-        <p class="loading">সদস্য তালিকা লোড হচ্ছে...</p>
+     <div class="container">
+      <h2>Core Committee</h2>
+       <div id="core-list" class="member-container"></div>
+
+      <h2>Advisory Committee</h2>
+       <div id="advisory-list" class="member-container"></div>
+
+      <h2>General Members</h2>
+       <div id="general-list" class="member-container"></div>
     </div>
 
-    <script>
-        async function loadMembers() {
-            try {
-                // আপনার ইউজারনেম ও রিপোজিটরি দিয়ে লিঙ্কটি ঠিক করুন
-                const response = await fetch('https://raw.githubusercontent.com/pssusofficial/pssusofficial.github.io/main/data.json?t=' + new Date().getTime());
-                const data = await response.json();
-                
-                const listContainer = document.getElementById('member-list');
-                listContainer.innerHTML = ''; // লোডিং টেক্সট মুছে ফেলা
+ <script>
+    async function loadMembers() {
+        const response = await fetch('https://raw.githubusercontent.com/pssusofficial/pssusofficial.github.io/main/data.json?t=' + new Date().getTime());
+        const data = await response.json();
+        
+        const sections = {
+            core: document.getElementById('core-list'),
+            advisory: document.getElementById('advisory-list'),
+            general: document.getElementById('general-list')
+        };
 
-                data.members.forEach(member => {
-                    const card = `
-                        <div class="member-card">
-                            <img src="${member.image}" alt="${member.name}">
-                            <h3>${member.name}</h3>
-                            <p>${member.role}</p>
-                            <p style="color:#e67e22; font-weight:bold;">${member.phone}</p>
-                        </div>
-                    `;
-                    listContainer.innerHTML += card;
-                });
-            } catch (error) {
-                console.error("ডাটা লোড করতে সমস্যা:", error);
-                document.getElementById('member-list').innerHTML = "তথ্য পাওয়া যায়নি।";
+        // আগের তথ্য মুছে ফেলা
+        Object.values(sections).forEach(s => s.innerHTML = '');
+
+        data.members.forEach(member => {
+            const card = `
+                <div class="member-card">
+                    <img src="${member.image}">
+                    <h3>${member.name}</h3>
+                    <p>${member.role}</p>
+                    <p>${member.phone}</p>
+                </div>`;
+            
+            // যার যে সেকশন সেখানে কার্ডটি পাঠিয়ে দেওয়া
+            if(sections[member.section]) {
+                sections[member.section].innerHTML += card;
+            } else {
+                sections.general.innerHTML += card; // ডিফোল্ট জেনারেল
             }
-        }
+        });
+    }
+    window.onload = loadMembers;
+ </script>
 
-        // পেজ লোড হলে ফাংশনটি কল হবে
-        window.onload = loadMembers;
-    </script>
 </body>
 </html>
