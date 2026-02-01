@@ -42,19 +42,62 @@
     </div>
 
     <script>
-        function checkLogin() {
-            const id = document.getElementById('user-id').value;
-            const pass = document.getElementById('user-pass').value;
-            if(id === "admin123" && pass === "club789") {
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-            } else { alert("wring user id or password!"); }
-        }
+        // লগইন চেক
+function checkLogin() {
+    const id = document.getElementById('user-id').value;
+    const pass = document.getElementById('user-pass').value;
+    if(id === "admin123" && pass === "club789") { // আপনার পছন্দের আইডি-পাসওয়ার্ড
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+    } else { alert("ভুল আইডি বা পাসওয়ার্ড!"); }
+}
 
-        async function saveToGitHub() {
-            // এখানে আমরা পরে গিটহাব এপিআই কানেক্ট করব
-            document.getElementById('status').innerText = "saving...";
+// গিটহাবে তথ্য সেভ করার মেইন ফাংশন
+async function saveToGitHub() {
+    const token = document.getElementById('gh-token').value;
+    const content = document.getElementById('data-input').value;
+    const status = document.getElementById('status');
+
+    if(!token) { alert("দয়া করে টোকেনটি দিন!"); return; }
+    
+    status.innerText = "গিটহাবে তথ্য পাঠানো হচ্ছে...";
+    
+    // নিচের লাইনটি আপনার ইউজারনেম ও রিপোজিটরি নাম দিয়ে পরিবর্তন করুন
+    const repo = "YOUR_USERNAME/YOUR_REPO_NAME"; 
+    const path = "data.json";
+
+    try {
+        // ১. ফাইলের বর্তমান SHA (আইডেন্টিটি) সংগ্রহ করা
+        const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`);
+        const fileData = await res.json();
+        const sha = fileData.sha;
+
+        // ২. নতুন ডাটা দিয়ে ফাইলটি আপডেট করা
+        const updateRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: "Data updated via PSSUS Admin Panel",
+                content: btoa(unescape(encodeURIComponent(content))), // ডাটাকে এনকোড করা
+                sha: sha
+            })
+        });
+
+        if(updateRes.ok) {
+            status.style.color = "green";
+            status.innerText = "অভিনন্দন! তথ্য সফলভাবে সেভ হয়েছে।";
+        } else {
+            throw new Error("টোকেন ভুল অথবা নেটওয়ার্ক সমস্যা।");
         }
+    } catch (err) {
+        status.style.color = "red";
+        status.innerText = "ত্রুটি: " + err.message;
+    }
+}
+
     </script>
 </body>
 </html>
