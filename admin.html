@@ -48,10 +48,10 @@
          </select>
 
         <label>পদবী (Role):</label>
-         <select id="m-role-select" onchange="syncRole()">
-         </select>
-    
-         <input type="text" id="m-role" placeholder="পদবী টাইপ করুন (যদি তালিকায় না থাকে)">
+           <input list="role-options" id="m-role" placeholder="পদবী খুঁজুন বা টাইপ করুন..." onfocus="this.value=''">
+
+           <datalist id="role-options">
+           </datalist>
 
         <input type="text" id="m-name" placeholder="সদস্যের নাম">
         <input type="text" id="m-phone" placeholder="মোবাইল নম্বর">
@@ -106,31 +106,31 @@
     // ২. সেকশন অনুযায়ী পদবী (Role) পরিবর্তন করার লজিক
     function updateRoleOptions() {
         const section = document.getElementById('m-section').value;
-        const roleSelect = document.getElementById('m-role-select');
+        const roleList = document.getElementById('role-options');
         const roleInput = document.getElementById('m-role');
-        
+    
         let options = [];
 
         if (section === 'core') {
             options = ["সভাপতি", "সহসভাপতি", "সম্পাদক", "সহসম্পাদক", "কোষাধ্যক্ষ"];
-            roleSelect.style.display = "block";
-            roleInput.placeholder = "অন্যান্য পদবী টাইপ করুন";
+            roleInput.value = ""; // আগের লেখা মুছে ফেলা
         } else if (section === 'advisory') {
-            options = ["সভাপতি", "সহসভাপতি", "সম্পাদক", "সহসম্পাদক", "কোষাধ্যক্ষ", "সদস্য"];
-            roleSelect.style.display = "block";
-            roleInput.placeholder = "অন্যান্য পদবী টাইপ করুন";
+           options = ["সভাপতি", "সহসভাপতি", "সম্পাদক", "সহসম্পাদক", "কোষাধ্যক্ষ", "সদস্য"];
+           roleInput.value = "";
         } else {
-            // জেনারেল মেম্বারদের জন্য ড্রপডাউন লাগবে না
-            roleSelect.style.display = "none";
-            roleInput.value = "General Member";
-            return;
+      // জেনারেল মেম্বারদের জন্য সরাসরি ভ্যালু
+           roleInput.value = "General Member";
+           roleList.innerHTML = ""; 
+        return;
         }
 
-        roleSelect.innerHTML = '<option value="">পদবী বেছে নিন (Role)...</option>';
-        options.forEach(opt => {
-            roleSelect.innerHTML += `<option value="${opt}">${opt}</option>`;
-        });
+    // সার্চযোগ্য লিস্টে অপশনগুলো যোগ করা
+          roleList.innerHTML = "";
+          options.forEach(opt => {
+          roleList.innerHTML += `<option value="${opt}">`;
+          });
     }
+
 
     // ড্রপডাউন থেকে সিলেক্ট করলে টেক্সট বক্সে মান বসানো
     function syncRole() {
