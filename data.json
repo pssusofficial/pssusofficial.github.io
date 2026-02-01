@@ -1,1 +1,18 @@
-{"test":"working"}
+{
+  "members": [
+    {
+      "id": 1,
+      "name": "আসিফ আহমেদ",
+      "role": "সভাপতি",
+      "phone": "017XXXXXXXX",
+      "image": "https://via.placeholder.com/100"
+    },
+    {
+      "id": 2,
+      "name": "রহিম উদ্দিন",
+      "role": "সাধারণ সম্পাদক",
+      "phone": "018XXXXXXXX",
+      "image": "https://via.placeholder.com/100"
+    }
+  ]
+}
