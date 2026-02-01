@@ -14,10 +14,10 @@
 <body>
     <div class="admin-card">
         <div id="login-section">
-            <h2>অ্যাডমিন প্রবেশ</h2>
-            <input type="text" id="user-id" placeholder="ইউজার আইডি">
-            <input type="password" id="user-pass" placeholder="পাসওয়ার্ড">
-            <button class="btn" onclick="checkLogin()">লগইন</button>
+            <h2>Admin Login</h2>
+            <input type="text" id="user-id" placeholder="user id">
+            <input type="password" id="user-pass" placeholder="password">
+            <button class="btn" onclick="checkLogin()">Login</button>
         </div>
 
         <div id="dashboard">
@@ -29,14 +29,14 @@
             
             <label>বিভাগ:</label>
             <select id="data-type">
-                <option value="members">সদস্য তালিকা</option>
+                <option value="members">Member List</option>
                 <option value="accounts">আয়-ব্যয়</option>
             </select>
             
             <label>তথ্য (JSON):</label>
             <textarea id="data-input" rows="5"></textarea>
             
-            <button class="btn" onclick="saveToGitHub()">গিটহাবে সেভ করুন</button>
+            <button class="btn" onclick="saveToGitHub()">Save</button>
             <p id="status"></p>
         </div>
     </div>
@@ -48,163 +48,12 @@
             if(id === "admin123" && pass === "club789") {
                 document.getElementById('login-section').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
-            } else { alert("ভুল আইডি বা পাসওয়ার্ড!"); }
+            } else { alert("wring user id or password!"); }
         }
 
         async function saveToGitHub() {
             // এখানে আমরা পরে গিটহাব এপিআই কানেক্ট করব
-            document.getElementById('status').innerText = "সেভ হচ্ছে...";
-        }
-    </script>
-</body>
-</html>
-        </div>
-
-        <div id="admin-content">
-            <h2>ড্যাশবোর্ড</h2>
-            
-            <div class="token-area">
-                <label style="color: #e67e22;">GitHub Token (Security Key):</label>
-                <input type="password" id="gh-token" placeholder="Input PAT">
-                <p class="warning">*এই টোকেনটি কোথাও সেভ হবে না, তাই প্রতিবার ব্যবহারের সময় দিতে হবে।</p>
-            </div>
-
-            <div class="input-group">
-                <label>কি আপডেট করতে চান?</label>
-                <select id="data-type">
-                    <option value="members">সদস্য তালিকা</option>
-                    <option value="accounts">আয়-ব্যয়</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label>তথ্য (JSON ফরম্যাটে):</label>
-                <textarea id="data-input" rows="5" placeholder='{"name": "রহিম", "role": "সদস্য"}'></textarea>
-            </div>
-
-            <button class="btn" onclick="updateData()">গিটহাবে সেভ করুন</button>
-            <div id="status-msg" class="status"></div>
-        </div>
-    </div>
-
-    <script>
-        // লগইন চেক (প্রাথমিক সুরক্ষা)
-        function login() {
-            const id = document.getElementById('user-id').value;
-            const pass = document.getElementById('user-pass').value;
-
-            // আইডি ও পাসওয়ার্ড আপনার মতো করে পরিবর্তন করে নিন
-            if(id === "admin123" && pass === "club789") {
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('admin-content').style.display = 'block';
-            } else {
-                document.getElementById('login-error').style.display = 'block';
-            }
-        }
-
-        // গিটহাব এপিআই ফাংশন
-        async function updateData() {
-            const token = document.getElementById('gh-token').value;
-            const content = document.getElementById('data-input').value;
-            const status = document.getElementById('status-msg');
-
-            if(!token) {
-                alert("দয়া করে গিটহাব টোকেনটি দিন!");
-                return;
-            }
-
-            status.style.color = "blue";
-            status.innerText = "গিটহাবে তথ্য পাঠানো হচ্ছে...";
-
-            // এখানে আপনার রিপোজিটরির নাম দিন (username/repo-name)
-            const repo = "YOUR_USERNAME/YOUR_REPO_NAME"; 
-            const path = "data.json";
-
-            try {
-                // ফাইলটির বর্তমান অবস্থা (SHA) জানা প্রয়োজন
-                const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`);
-                const fileData = await res.json();
-                const sha = fileData.sha;
-
-                // নতুন ডাটা আপডেট করা
-                const updateRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: "Data updated via Admin Panel",
-                        content: btoa(unescape(encodeURIComponent(content))), // ডাটা এনকোড করা
-                        sha: sha
-                    })
-                });
-
-                if(updateRes.ok) {
-                    status.style.color = "green";
-                    status.innerText = "সফলভাবে সেভ হয়েছে!";
-                } else {
-                    throw new Error("আপডেট ব্যর্থ হয়েছে।");
-                }
-            } catch (err) {
-                status.style.color = "red";
-                status.innerText = "ত্রুটি: " + err.message;
-            }
-        }
-    </script>
-</body>
-</html>
-        <div id="admin-content">
-            <h2>ড্যাশবোর্ড</h2>
-            
-            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <p>স্বাগতম, অ্যাডমিন! এখান থেকে আপনি তথ্য পরিবর্তন করতে পারবেন।</p>
-            </div>
-
-            <div class="input-group">
-                <label>বিভাগ সিলেক্ট করুন:</label>
-                <select id="data-type">
-                    <option value="member">নতুন সদস্য যোগ</option>
-                    <option value="account">আয়/ব্যয় আপডেট</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label>বিস্তারিত তথ্য (JSON format):</label>
-                <input type="text" id="data-input" placeholder="তথ্য এখানে লিখুন">
-            </div>
-
-            <button class="btn" onclick="updateGitHub()">গিটহাবে আপডেট করুন</button>
-            <div id="status-msg" class="status"></div>
-        </div>
-    </div>
-
-    <script>
-        // লগইন ফাংশন
-        function login() {
-            const id = document.getElementById('user-id').value;
-            const pass = document.getElementById('user-pass').value;
-
-            // আপনার পছন্দের আইডি এবং পাসওয়ার্ড এখানে দিন
-            if(id === "admin123" && pass === "club789") {
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('admin-content').style.display = 'block';
-            } else {
-                document.getElementById('login-error').style.display = 'block';
-            }
-        }
-
-        // গিটহাব এপিআই দিয়ে ফাইল আপডেট করার ফাংশন (সংক্ষিপ্ত রূপ)
-        async function updateGitHub() {
-            const msg = document.getElementById('status-msg');
-            msg.style.color = "blue";
-            msg.innerText = "প্রসেসিং হচ্ছে...";
-
-            // এখানে আপনার গিটহাব টোকেন এবং এপিআই কোড বসবে পরবর্তীতে
-            setTimeout(() => {
-                msg.style.color = "green";
-                msg.innerText = "সফলভাবে আপডেট হয়েছে! (ডেমো)";
-            }, 2000);
+            document.getElementById('status').innerText = "saving...";
         }
     </script>
 </body>
