@@ -2,18 +2,24 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>PSSUS Admin - স্মার্ট লগইন</title>
+    <title>PSSUS Admin - Pro Panel</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h2 { color: #1a5276; text-align: center; }
+        .container { max-width: 700px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2, h3 { color: #1a5276; text-align: center; }
         input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn { background: #1a5276; color: white; border: none; padding: 12px; width: 100%; cursor: pointer; border-radius: 8px; font-size: 16px; font-weight: bold; }
-        .btn:hover { background: #154360; }
+        .btn { background: #1a5276; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 8px; font-weight: bold; }
+        .btn-red { background: #c0392b; }
+        .btn-green { background: #27ae60; }
         #dashboard { display: none; }
-        .input-group { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee; }
-        #status { text-align: center; font-weight: bold; margin-top: 15px; }
-        .token-info { font-size: 12px; color: #27ae60; text-align: center; margin-bottom: 10px; }
+        .input-group { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee; }
+        
+        /* মেম্বার লিস্ট টেবিল */
+        .member-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .member-table th, .member-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        .search-box { background: #fff; border: 2px solid #1a5276; }
+        #status { text-align: center; font-weight: bold; margin: 15px 0; }
+        .action-btns { display: flex; gap: 5px; }
     </style>
 </head>
 <body>
@@ -23,115 +29,182 @@
         <h2>অ্যাডমিন প্রবেশ</h2>
         <input type="text" id="user-id" placeholder="ইউজার আইডি">
         <input type="password" id="user-pass" placeholder="পাসওয়ার্ড">
-        <input type="password" id="login-token" placeholder="GitHub Token (একবার দিলেই হবে)">
-        <button class="btn" onclick="checkLogin()">লগইন করুন</button>
+        <input type="password" id="login-token" placeholder="GitHub Token">
+        <button class="btn" style="width:100%" onclick="checkLogin()">লগইন করুন</button>
     </div>
 
     <div id="dashboard">
-        <h2>সদস্য যোগ করুন</h2>
-        <p class="token-info">● টোকেন সচল আছে</p>
+        <h2>PSSUS কন্ট্রোল প্যানেল</h2>
         
         <div class="input-group">
-            <input type="text" id="m-name" placeholder="সদস্যের নাম">
-            <input type="text" id="m-role" placeholder="পদবী (যেমন: সভাপতি)">
+            <h3 id="form-title">নতুন সদস্য যোগ করুন</h3>
+            <input type="hidden" id="m-id"> <input type="text" id="m-name" placeholder="সদস্যের নাম">
+            <input type="text" id="m-role" placeholder="পদবী">
             <input type="text" id="m-phone" placeholder="মোবাইল নম্বর">
             <input type="text" id="m-img" placeholder="ছবির লিঙ্ক" value="https://via.placeholder.com/100">
+            <button class="btn btn-green" id="save-btn" style="width:100%" onclick="saveMember()">সেভ করুন</button>
+            <button class="btn" id="cancel-btn" style="width:100%; margin-top:5px; display:none;" onclick="resetForm()">বাতিল করুন</button>
         </div>
 
-        <button class="btn" onclick="addNewMember()">সদস্য তালিকায় যোগ করুন</button>
-        <button class="btn" onclick="logout()" style="background:#c0392b; margin-top:10px;">লগ আউট</button>
         <p id="status"></p>
+
+        <h3>সদস্য তালিকা</h3>
+        <input type="text" id="search-input" class="search-box" placeholder="সদস্য খুঁজুন (নাম বা পদবী)..." onkeyup="filterMembers()">
+        
+        <table class="member-table">
+            <thead>
+                <tr>
+                    <th>নাম</th>
+                    <th>পদবী</th>
+                    <th>অ্যাকশন</th>
+                </tr>
+            </thead>
+            <tbody id="member-list-body">
+                </tbody>
+        </table>
+
+        <button class="btn btn-red" onclick="logout()" style="width:100%; margin-top:30px;">লগ আউট</button>
     </div>
 </div>
 
 <script>
     const repo = "pssusofficial/pssusofficial.github.io";
     const path = "data.json";
-    let sessionToken = ""; // এখানে টোকেনটি জমা থাকবে
+    let sessionToken = "";
+    let allMembers = [];
 
     function checkLogin() {
         const id = document.getElementById('user-id').value.trim();
         const pass = document.getElementById('user-pass').value.trim();
         const token = document.getElementById('login-token').value.trim();
 
-        if(id === "admin123" && pass === "club789") {
-            if(!token) {
-                alert("দয়া করে গিটহাব টোকেনটি দিন!");
-                return;
-            }
-            sessionToken = token; // টোকেনটি ভ্যারিয়েবলে সেভ করে রাখা হলো
+        if(id === "admin123" && pass === "club789" && token) {
+            sessionToken = token;
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
-        } else { 
-            alert("ভুল আইডি বা পাসওয়ার্ড!"); 
-        }
+            loadMembers();
+        } else { alert("সঠিক তথ্য দিন!"); }
     }
 
-    async function addNewMember() {
+    async function loadMembers() {
+        try {
+            const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?t=${new Date().getTime()}`);
+            const fileData = await res.json();
+            const content = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+            allMembers = content.members;
+            renderTable(allMembers);
+        } catch (err) { console.error("Load failed", err); }
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('member-list-body');
+        tbody.innerHTML = '';
+        data.forEach(m => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${m.name}</td>
+                    <td>${m.role}</td>
+                    <td class="action-btns">
+                        <button class="btn btn-green" onclick="editMember(${m.id})">Edit</button>
+                        <button class="btn btn-red" onclick="deleteMember(${m.id})">Del</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function filterMembers() {
+        const term = document.getElementById('search-input').value.toLowerCase();
+        const filtered = allMembers.filter(m => m.name.toLowerCase().includes(term) || m.role.toLowerCase().includes(term));
+        renderTable(filtered);
+    }
+
+    async function saveMember() {
+        const id = document.getElementById('m-id').value;
         const name = document.getElementById('m-name').value.trim();
         const role = document.getElementById('m-role').value.trim();
         const phone = document.getElementById('m-phone').value.trim();
         const img = document.getElementById('m-img').value.trim();
         const status = document.getElementById('status');
 
-        if(!name || !role) { alert("নাম এবং পদবী অবশ্যই দিন!"); return; }
-
-        status.style.color = "blue";
+        if(!name || !role) return alert("তথ্য পূরণ করুন");
         status.innerText = "গিটহাবে সেভ হচ্ছে...";
 
         try {
-            const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?t=${new Date().getTime()}`, {
+            const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
                 headers: { 'Authorization': `token ${sessionToken}` }
             });
-            
-            if(!res.ok) throw new Error("টোকেন সঠিক নয় অথবা ফাইল পাওয়া যায়নি।");
-            
             const fileData = await res.json();
-            const sha = fileData.sha;
-            let currentContent = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+            let content = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
 
-            const newMember = {
-                id: Date.now(),
-                name: name,
-                role: role,
-                phone: phone,
-                image: img
-            };
-            
-            currentContent.members.push(newMember);
-
-            const updateRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${sessionToken}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: `Added member: ${name}`,
-                    content: btoa(unescape(encodeURIComponent(JSON.stringify(currentContent, null, 2)))),
-                    sha: sha
-                })
-            });
-
-            if(updateRes.ok) {
-                status.style.color = "green";
-                status.innerText = "সফলভাবে সেভ হয়েছে!";
-                document.getElementById('m-name').value = '';
-                document.getElementById('m-role').value = '';
-                document.getElementById('m-phone').value = '';
+            if (id) {
+                // Edit
+                const index = content.members.findIndex(m => m.id == id);
+                content.members[index] = { id: parseInt(id), name, role, phone, image: img };
             } else {
-                throw new Error("গিটহাব আপডেট করতে পারেনি।");
+                // Add
+                content.members.push({ id: Date.now(), name, role, phone, image: img });
             }
-        } catch (err) {
-            status.style.color = "red";
-            status.innerText = "ত্রুটি: " + err.message;
-        }
+
+            await updateGitHub(content, fileData.sha);
+            status.innerText = "সফলভাবে সেভ হয়েছে!";
+            resetForm();
+            loadMembers();
+        } catch (err) { status.innerText = "ত্রুটি: " + err.message; }
     }
 
-    function logout() {
-        sessionToken = "";
-        location.reload(); // পেজ রিফ্রেশ করে লগ আউট করা
+    async function deleteMember(id) {
+        if(!confirm("আপনি কি নিশ্চিতভাবে ডিলিট করতে চান?")) return;
+        try {
+            const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+                headers: { 'Authorization': `token ${sessionToken}` }
+            });
+            const fileData = await res.json();
+            let content = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+            
+            content.members = content.members.filter(m => m.id != id);
+            await updateGitHub(content, fileData.sha);
+            loadMembers();
+        } catch (err) { alert("ডিলিট হয়নি!"); }
     }
+
+    function editMember(id) {
+        const m = allMembers.find(m => m.id == id);
+        document.getElementById('m-id').value = m.id;
+        document.getElementById('m-name').value = m.name;
+        document.getElementById('m-role').value = m.role;
+        document.getElementById('m-phone').value = m.phone;
+        document.getElementById('m-img').value = m.image;
+        
+        document.getElementById('form-title').innerText = "সদস্যের তথ্য এডিট করুন";
+        document.getElementById('save-btn').innerText = "আপডেট করুন";
+        document.getElementById('cancel-btn').style.display = "block";
+    }
+
+    function resetForm() {
+        document.getElementById('m-id').value = '';
+        document.getElementById('m-name').value = '';
+        document.getElementById('m-role').value = '';
+        document.getElementById('m-phone').value = '';
+        document.getElementById('m-img').value = 'https://via.placeholder.com/100';
+        document.getElementById('form-title').innerText = "নতুন সদস্য যোগ করুন";
+        document.getElementById('save-btn').innerText = "সেভ করুন";
+        document.getElementById('cancel-btn').style.display = "none";
+    }
+
+    async function updateGitHub(content, sha) {
+        return fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `token ${sessionToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: "Updated via Admin Panel",
+                content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
+                sha: sha
+            })
+        });
+    }
+
+    function logout() { location.reload(); }
 </script>
 
 </body>
