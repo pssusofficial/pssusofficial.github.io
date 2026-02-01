@@ -85,6 +85,45 @@ header {
 .dropdown-menu li a:hover { background: #f1f1f1; }
 .nav-container li:hover .dropdown-menu { display: block; }
 
+
+/*Navigation Admin Panel মোডাল ব্যাকগ্রাউন্ড */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+}
+
+/*Navigation Admin Panel মোডাল কন্টেন্ট বক্স */
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 320px;
+    text-align: center;
+    position: relative;
+    font-family: 'NikoshFont', sans-serif;
+}
+
+.close {
+    position: absolute;
+    right: 20px; top: 10px;
+    font-size: 28px; cursor: pointer;
+}
+
+.input-group input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: 'NikoshFont', sans-serif;
+}
+
+
 /* স্লাইডার - ছবি কাটবে না */
 .slider-container {
     position: relative; width: 100%; height: 500px; background: #000; overflow: hidden;
