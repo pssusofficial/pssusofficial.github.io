@@ -88,6 +88,7 @@
     let sessionToken = "";
     let allMembers = [];
 
+    // ১. লগইন চেক
     function checkLogin() {
         const id = document.getElementById('user-id').value.trim();
         const pass = document.getElementById('user-pass').value.trim();
@@ -97,10 +98,50 @@
             sessionToken = token;
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
+            updateRoleOptions(); // লগইনের পর ড্রপডাউন রেডি করা
             loadMembers();
         } else { alert("সবগুলো তথ্য সঠিকভাবে দিন!"); }
     }
 
+    // ২. সেকশন অনুযায়ী পদবী (Role) পরিবর্তন করার লজিক
+    function updateRoleOptions() {
+        const section = document.getElementById('m-section').value;
+        const roleSelect = document.getElementById('m-role-select');
+        const roleInput = document.getElementById('m-role');
+        
+        let options = [];
+
+        if (section === 'core') {
+            options = ["সভাপতি", "সহসভাপতি", "সম্পাদক", "সহসম্পাদক", "কোষাধ্যক্ষ"];
+            roleSelect.style.display = "block";
+            roleInput.placeholder = "অন্যান্য পদবী টাইপ করুন";
+        } else if (section === 'advisory') {
+            options = ["সভাপতি", "সহসভাপতি", "সম্পাদক", "সহসম্পাদক", "কোষাধ্যক্ষ", "সদস্য"];
+            roleSelect.style.display = "block";
+            roleInput.placeholder = "অন্যান্য পদবী টাইপ করুন";
+        } else {
+            // জেনারেল মেম্বারদের জন্য ড্রপডাউন লাগবে না
+            roleSelect.style.display = "none";
+            roleInput.value = "General Member";
+            return;
+        }
+
+        roleSelect.innerHTML = '<option value="">পদবী বেছে নিন (Role)...</option>';
+        options.forEach(opt => {
+            roleSelect.innerHTML += `<option value="${opt}">${opt}</option>`;
+        });
+    }
+
+    // ড্রপডাউন থেকে সিলেক্ট করলে টেক্সট বক্সে মান বসানো
+    function syncRole() {
+        const roleSelect = document.getElementById('m-role-select');
+        const roleInput = document.getElementById('m-role');
+        if(roleSelect.value !== "") {
+            roleInput.value = roleSelect.value;
+        }
+    }
+
+    // ৩. গিটহাব থেকে ডাটা লোড করা
     async function loadMembers() {
         try {
             const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?t=${new Date().getTime()}`);
@@ -111,15 +152,15 @@
         } catch (err) { console.error("Load failed", err); }
     }
 
+    // টেবিল রেন্ডার করা
     function renderTable(data) {
         const tbody = document.getElementById('member-list-body');
-        if(!tbody) return;
         tbody.innerHTML = '';
         data.forEach(m => {
             tbody.innerHTML += `
                 <tr>
                     <td>${m.name}<br><small>${m.role}</small></td>
-                    <td>${m.section || 'general'}</td>
+                    <td>${m.section}</td>
                     <td class="action-btns">
                         <button class="btn btn-green" style="padding:5px" onclick="editMember(${m.id})">Edit</button>
                         <button class="btn btn-red" style="padding:5px" onclick="deleteMember(${m.id})">Del</button>
@@ -129,15 +170,7 @@
         });
     }
 
-    function filterMembers() {
-        const term = document.getElementById('search-input').value.toLowerCase();
-        const filtered = allMembers.filter(m => 
-            m.name.toLowerCase().includes(term) || 
-            (m.role && m.role.toLowerCase().includes(term))
-        );
-        renderTable(filtered);
-    }
-
+    // ৪. সদস্য সেভ করা (Add/Edit)
     async function saveMember() {
         const id = document.getElementById('m-id').value;
         const section = document.getElementById('m-section').value;
@@ -148,8 +181,7 @@
         const status = document.getElementById('status');
 
         if(!name || !role) return alert("নাম ও পদবী দিন");
-        status.style.color = "blue";
-        status.innerText = "গিটহাবে সেভ হচ্ছে...";
+        status.innerText = "সেভ হচ্ছে...";
 
         try {
             const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
@@ -157,13 +189,10 @@
             });
             const fileData = await res.json();
             let content = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
-            if(!content.members) content.members = [];
 
             if (id) {
                 const index = content.members.findIndex(m => m.id == id);
-                if(index !== -1) {
-                    content.members[index] = { id: parseInt(id), section, name, role, phone, image: img };
-                }
+                content.members[index] = { id: parseInt(id), section, name, role, phone, image: img };
             } else {
                 content.members.push({ id: Date.now(), section, name, role, phone, image: img });
             }
@@ -179,54 +208,28 @@
             });
 
             if(updateRes.ok) {
-                status.style.color = "green";
                 status.innerText = "সফলভাবে সেভ হয়েছে!";
                 resetForm();
                 loadMembers();
-            } else { throw new Error("Update failed"); }
-        } catch (err) { 
-            status.style.color = "red";
-            status.innerText = "ত্রুটি: " + err.message; 
-        }
+            }
+        } catch (err) { status.innerText = "ভুল: " + err.message; }
     }
 
-    async function deleteMember(id) {
-        if(!confirm("ডিলিট করতে চান?")) return;
-        try {
-            const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-                headers: { 'Authorization': `token ${sessionToken}` }
-            });
-            const fileData = await res.json();
-            let content = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
-            content.members = content.members.filter(m => m.id != id);
-            
-            const updateRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-                method: 'PUT',
-                headers: { 'Authorization': `token ${sessionToken}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: "Deleted member",
-                    content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
-                    sha: fileData.sha
-                })
-            });
-            if(updateRes.ok) loadMembers();
-        } catch (err) { alert("ডিলিট করা যায়নি!"); }
-    }
-
+    // ৫. এডিট এবং ডিলিট লজিক
     function editMember(id) {
         const m = allMembers.find(m => m.id == id);
-        if(!m) return;
         document.getElementById('m-id').value = m.id;
-        document.getElementById('m-section').value = m.section || 'general';
-        document.getElementById('m-name').value = m.name;
+        document.getElementById('m-section').value = m.section;
+        updateRoleOptions(); // সেকশন অনুযায়ী ড্রপডাউন লোড করা
         document.getElementById('m-role').value = m.role;
+        document.getElementById('m-name').value = m.name;
         document.getElementById('m-phone').value = m.phone;
         document.getElementById('m-img').value = m.image;
         
-        document.getElementById('form-title').innerText = "তথ্য পরিবর্তন করুন";
-        document.getElementById('save-btn').innerText = "আপডেট করুন";
+        document.getElementById('form-title').innerText = "তথ্য পরিবর্তন";
+        document.getElementById('save-btn').innerText = "আপডেট";
         document.getElementById('cancel-btn').style.display = "block";
-        window.scrollTo(0, 0);
+        window.scrollTo(0,0);
     }
 
     function resetForm() {
@@ -238,10 +241,12 @@
         document.getElementById('form-title').innerText = "সদস্য যোগ করুন";
         document.getElementById('save-btn').innerText = "সেভ করুন";
         document.getElementById('cancel-btn').style.display = "none";
+        updateRoleOptions();
     }
 
     function logout() { location.reload(); }
 </script>
+
 
 </body>
 </html>
