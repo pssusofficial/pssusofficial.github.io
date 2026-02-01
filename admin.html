@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অ্যাডমিন প্যানেল - PSSUS</title>
+    <style>
+        body { font-family: 'NikoshFont', Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        .admin-box { max-width: 500px; margin: 50px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #1a5276; text-align: center; border-bottom: 2px solid #e67e22; padding-bottom: 10px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        .btn { width: 100%; padding: 12px; background-color: #1a5276; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .btn:hover { background-color: #154360; }
+        #admin-content { display: none; }
+        .status { margin-top: 15px; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-box">
+        <div id="login-form">
+            <h2>অ্যাডমিন লগইন</h2>
+            <div class="input-group">
+                <label>ইউজার আইডি:</label>
+                <input type="text" id="user-id" placeholder="ID লিখুন">
+            </div>
+            <div class="input-group">
+                <label>পাসওয়ার্ড:</label>
+                <input type="password" id="user-pass" placeholder="Password লিখুন">
+            </div>
+            <button class="btn" onclick="login()">প্রবেশ করুন</button>
+            <p id="login-error" style="color: red; display: none; text-align: center;">ভুল আইডি বা পাসওয়ার্ড!</p>
+        </div>
+
+        <div id="admin-content">
+            <h2>ড্যাশবোর্ড</h2>
+            
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p>স্বাগতম, অ্যাডমিন! এখান থেকে আপনি তথ্য পরিবর্তন করতে পারবেন।</p>
+            </div>
+
+            <div class="input-group">
+                <label>বিভাগ সিলেক্ট করুন:</label>
+                <select id="data-type">
+                    <option value="member">নতুন সদস্য যোগ</option>
+                    <option value="account">আয়/ব্যয় আপডেট</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>বিস্তারিত তথ্য (JSON format):</label>
+                <input type="text" id="data-input" placeholder="তথ্য এখানে লিখুন">
+            </div>
+
+            <button class="btn" onclick="updateGitHub()">গিটহাবে আপডেট করুন</button>
+            <div id="status-msg" class="status"></div>
+        </div>
+    </div>
+
+    <script>
+        // লগইন ফাংশন
+        function login() {
+            const id = document.getElementById('user-id').value;
+            const pass = document.getElementById('user-pass').value;
+
+            // আপনার পছন্দের আইডি এবং পাসওয়ার্ড এখানে দিন
+            if(id === "admin123" && pass === "club789") {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'block';
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        // গিটহাব এপিআই দিয়ে ফাইল আপডেট করার ফাংশন (সংক্ষিপ্ত রূপ)
+        async function updateGitHub() {
+            const msg = document.getElementById('status-msg');
+            msg.style.color = "blue";
+            msg.innerText = "প্রসেসিং হচ্ছে...";
+
+            // এখানে আপনার গিটহাব টোকেন এবং এপিআই কোড বসবে পরবর্তীতে
+            setTimeout(() => {
+                msg.style.color = "green";
+                msg.innerText = "সফলভাবে আপডেট হয়েছে! (ডেমো)";
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
