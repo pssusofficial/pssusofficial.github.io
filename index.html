@@ -23,25 +23,42 @@
 
     <nav class="nav-ribbon">
         <ul class="nav-container">
-            <li><a href="index.html">মূলপাতা</a></li>
-            <li><a href="#about">আমাদের সম্পর্কে</a></li>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#about">About Us</a></li>
             <li class="dropdown">
-               <a href="javascript:void(0)" id="member-toggle">সদস্যবৃন্দ</a>
+               <a href="javascript:void(0)" id="member-toggle">Members</a>
                 <ul class="dropdown-menu">
                  <li><a href="members.html">কার্যনির্বাহী কমিটি</a></li>
-                 <li><a href="members.html#general">সাধারণ সদস্য</a></li>
-                 <li><a href="members.html#advisory">উপদেষ্টা মণ্ডলী</a></li>
+                 <li><a href="members.html#general">General Members</a></li>
+                 <li><a href="members.html#advisory">Advisory Committee</a></li>
+                 <li><a href="#login-modal" id="admin-login-btn">Admin Login</a></li>
+
+                 <div id="login-modal" class="modal">
+                   <div class="modal-content">
+                     <span class="close">&times;</span>
+                       <h2 style="color: #1a5276;">Admin Login</h2>
+                        <div class="input-group">
+                          <input type="text" id="admin-id" placeholder="user ID">
+                        </div>
+                        <div class="input-group">
+                          <input type="password" id="admin-pass" placeholder="password">
+                        </div>
+                        <button class="btn-save" onclick="handleLogin()">Login</button>
+                         <p id="error-msg" style="color: red; margin-top: 10px; display: none;">wrong user ID or password!</p>
+                   </div>
+                 </div>
+                    
                 </ul>
             </li>
 
-            <li><a href="gallery.html">গ্যালারি</a></li>
-            <li><a href="#activities">কার্যক্রম</a></li>
-            <li><a href="#contact">যোগাযোগ</a></li>
+            <li><a href="gallery.html">Gallery</a></li>
+            <li><a href="#activities">Programs</a></li>
+            <li><a href="#contact">Contact</a></li>
         </ul>
     </nav>
 
     <div class="slider-section">
-        <h2 style="color: #1a5276; margin-bottom: 20px;">গ্যালারি ও কিছু স্মৃতি</h2>
+        <h2 style="color: #1a5276; margin-bottom: 20px;">Gallery</h2>
         <div class="slider-container">
             <img src="images/pic1.jpeg" class="slide">
             <img src="images/pic2.jpeg" class="slide">
