@@ -5,10 +5,12 @@
     <title>PSSUS - অ্যাডমিন প্যানেল</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
-        .admin-card { max-width: 450px; margin: auto; background: white; padding: 25px; border-radius: 10px; shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
-        .btn { background: #1a5276; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; border-radius: 5px; }
+        .admin-card { max-width: 450px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .btn { background: #1a5276; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; border-radius: 5px; font-size: 16px; }
+        .btn:hover { background: #154360; }
         #dashboard { display: none; }
+        #status { font-weight: bold; margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body>
@@ -27,13 +29,91 @@
                 <input type="password" id="gh-token" placeholder="Enter GitHub Token">
             </div>
             
-            <label>Select:</label>
+            <label>Select Section:</label>
             <select id="data-type">
                 <option value="members">Member List</option>
                 <option value="accounts">আয়-ব্যয়</option>
             </select>
             
             <label>Information (JSON):</label>
+            <textarea id="data-input" rows="5" placeholder='{"key": "value"}'></textarea>
+            
+            <button class="btn" onclick="saveToGitHub()">Save to GitHub</button>
+            <p id="status"></p>
+        </div>
+    </div>
+
+    <script>
+        // লগইন ফাংশন
+        function checkLogin() {
+            // trim() ব্যবহার করা হয়েছে যাতে বাড়তি স্পেস থাকলে সমস্যা না হয়
+            const id = document.getElementById('user-id').value.trim();
+            const pass = document.getElementById('user-pass').value.trim();
+            
+            if(id === "admin123" && pass === "club789") {
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+            } else { 
+                alert("Wrong user id or password!"); 
+            }
+        }
+
+        // গিটহাবে তথ্য সেভ করার মেইন ফাংশন
+        async function saveToGitHub() {
+            const token = document.getElementById('gh-token').value.trim();
+            const content = document.getElementById('data-input').value;
+            const status = document.getElementById('status');
+
+            if(!token) { 
+                alert("Please Enter GitHub Token!"); 
+                return; 
+            }
+            
+            status.style.color = "blue";
+            status.innerText = "Sending Data to GitHub...";
+            
+            const repo = "pssusofficial/pssusofficial.github.io"; 
+            const path = "data.json";
+
+            try {
+                // ১. ফাইলের বর্তমান SHA সংগ্রহ করা
+                const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`);
+                if (!res.ok) throw new Error("Could not find data.json file");
+                
+                const fileData = await res.json();
+                const sha = fileData.sha;
+
+                // ২. ডাটা আপডেট করা
+                const updateRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: "Data updated via PSSUS Admin Panel",
+                        content: btoa(unescape(encodeURIComponent(content))),
+                        sha: sha
+                    })
+                });
+
+                if(updateRes.ok) {
+                    status.style.color = "green";
+                    status.innerText = "Congratulations! Data Updated Successfully";
+                } else {
+                    const errorResponse = await updateRes.json();
+                    throw new Error(errorResponse.message || "Update Failed");
+                }
+            } catch (err) {
+                console.error(err);
+                status.style.color = "red";
+                status.innerText = "Error: " + err.message; 
+                alert("Error: " + err.message);
+            }
+        }
+    </script>
+</body>
+</html>
             <textarea id="data-input" rows="5"></textarea>
             
             <button class="btn" onclick="saveToGitHub()">Save</button>
