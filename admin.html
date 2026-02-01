@@ -37,14 +37,23 @@
         <h2>PSSUS কন্ট্রোল প্যানেল</h2>
         
         <div class="input-group">
-            <h3 id="form-title">নতুন সদস্য যোগ করুন</h3>
-            <input type="hidden" id="m-id"> <input type="text" id="m-name" placeholder="সদস্যের নাম">
-            <input type="text" id="m-role" placeholder="পদবী">
-            <input type="text" id="m-phone" placeholder="মোবাইল নম্বর">
-            <input type="text" id="m-img" placeholder="ছবির লিঙ্ক" value="https://via.placeholder.com/100">
-            <button class="btn btn-green" id="save-btn" style="width:100%" onclick="saveMember()">সেভ করুন</button>
-            <button class="btn" id="cancel-btn" style="width:100%; margin-top:5px; display:none;" onclick="resetForm()">বাতিল করুন</button>
-        </div>
+         <h3 id="form-title">সদস্য যোগ করুন</h3>
+          <input type="hidden" id="m-id">
+    
+           <label>কমিটি সেকশন:</label>
+            <select id="m-section">
+             <option value="core">Core Committee</option>
+             <option value="advisory">Advisory Committee</option>
+             <option value="general">General Member</option>
+            </select>
+
+        <input type="text" id="m-name" placeholder="সদস্যের নাম">
+       <input type="text" id="m-role" placeholder="পদবী (যেমন: সভাপতি)">
+       <input type="text" id="m-phone" placeholder="মোবাইল নম্বর">
+       <input type="text" id="m-img" placeholder="ছবির লিঙ্ক" value="https://via.placeholder.com/100">
+       <button class="btn btn-green" id="save-btn" style="width:100%" onclick="saveMember()">সেভ করুন</button>
+     </div>
+
 
         <p id="status"></p>
 
