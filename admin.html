@@ -37,24 +37,30 @@
         <h2>কন্ট্রোল প্যানেল</h2>
         
         <div class="input-group">
-            <h3 id="form-title">সদস্য যোগ করুন</h3>
-            <input type="hidden" id="m-id">
-            
-            <label>কমিটি সেকশন:</label>
-            <select id="m-section">
-                <option value="core">Core Committee</option>
-                <option value="advisory">Advisory Committee</option>
-                <option value="general">General Member</option>
-            </select>
+         <h3 id="form-title">সদস্য যোগ করুন</h3>
+          <input type="hidden" id="m-id">
+    
+        <label>কমিটি সেকশন:</label>
+         <select id="m-section" onchange="updateRoleOptions()">
+           <option value="core">Core Committee</option>
+           <option value="advisory">Advisory Committee</option>
+           <option value="general">General Member</option>
+         </select>
 
-            <input type="text" id="m-name" placeholder="সদস্যের নাম">
-            <input type="text" id="m-role" placeholder="পদবী">
-            <input type="text" id="m-phone" placeholder="মোবাইল নম্বর">
-            <input type="text" id="m-img" placeholder="ছবির লিঙ্ক" value="https://via.placeholder.com/100">
-            
-            <button class="btn btn-green" id="save-btn" onclick="saveMember()">সেভ করুন</button>
-            <button class="btn" id="cancel-btn" style="margin-top:5px; display:none; background:#7f8c8d;" onclick="resetForm()">বাতিল</button>
-        </div>
+        <label>পদবী (Role):</label>
+         <select id="m-role-select" onchange="syncRole()">
+         </select>
+    
+         <input type="text" id="m-role" placeholder="পদবী টাইপ করুন (যদি তালিকায় না থাকে)">
+
+        <input type="text" id="m-name" placeholder="সদস্যের নাম">
+        <input type="text" id="m-phone" placeholder="মোবাইল নম্বর">
+        <input type="text" id="m-img" placeholder="ছবির লিঙ্ক" value="https://via.placeholder.com/100">
+    
+        <button class="btn btn-green" id="save-btn" onclick="saveMember()">সেভ করুন</button>
+        <button class="btn" id="cancel-btn" style="margin-top:5px; display:none; background:#7f8c8d;" onclick="resetForm()">বাতিল</button>
+     </div>
+   
 
         <p id="status"></p>
 
