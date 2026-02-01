@@ -2,38 +2,62 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>সুরক্ষিত অ্যাডমিন প্যানেল - PSSUS</title>
+    <title>PSSUS - অ্যাডমিন প্যানেল</title>
     <style>
-        body { font-family: 'NikoshFont', Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
-        .admin-box { max-width: 500px; margin: 30px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h2 { color: #1a5276; text-align: center; border-bottom: 2px solid #e67e22; padding-bottom: 10px; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
-        .btn { width: 100%; padding: 12px; background-color: #1a5276; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; transition: 0.3s; margin-top: 10px; }
-        .btn:hover { background-color: #154360; }
-        .token-area { background: #fff3e0; padding: 15px; border-radius: 8px; border: 1px dashed #e67e22; margin-bottom: 20px; }
-        #admin-content { display: none; }
-        .status { margin-top: 15px; text-align: center; font-weight: bold; }
-        .warning { font-size: 12px; color: #666; margin-top: 5px; }
+        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+        .admin-card { max-width: 450px; margin: auto; background: white; padding: 25px; border-radius: 10px; shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+        .btn { background: #1a5276; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; border-radius: 5px; }
+        #dashboard { display: none; }
     </style>
 </head>
 <body>
+    <div class="admin-card">
+        <div id="login-section">
+            <h2>অ্যাডমিন প্রবেশ</h2>
+            <input type="text" id="user-id" placeholder="ইউজার আইডি">
+            <input type="password" id="user-pass" placeholder="পাসওয়ার্ড">
+            <button class="btn" onclick="checkLogin()">লগইন</button>
+        </div>
 
-    <div class="admin-box">
-        <div id="login-form">
-            <h2>Admin Login</h2>
-            <div class="input-group">
-                <label>user id:</label>
-                <input type="text" id="user-id" placeholder="ID দিন">
+        <div id="dashboard">
+            <h2>ড্যাশবোর্ড</h2>
+            <div style="background:#fff3e0; padding:10px; border:1px dashed #e67e22; margin-bottom:15px;">
+                <label>GitHub Token:</label>
+                <input type="password" id="gh-token" placeholder="আপনার টোকেনটি এখানে দিন">
             </div>
-            <div class="input-group">
-                <label>password:</label>
-                <input type="password" id="user-pass" placeholder="Password দিন">
-            </div>
-            <button class="btn" onclick="login()">Login</button>
-            <p id="login-error" style="color: red; display: none; text-align: center;">ভুল আইডি বা পাসওয়ার্ড!</p>
+            
+            <label>বিভাগ:</label>
+            <select id="data-type">
+                <option value="members">সদস্য তালিকা</option>
+                <option value="accounts">আয়-ব্যয়</option>
+            </select>
+            
+            <label>তথ্য (JSON):</label>
+            <textarea id="data-input" rows="5"></textarea>
+            
+            <button class="btn" onclick="saveToGitHub()">গিটহাবে সেভ করুন</button>
+            <p id="status"></p>
+        </div>
+    </div>
+
+    <script>
+        function checkLogin() {
+            const id = document.getElementById('user-id').value;
+            const pass = document.getElementById('user-pass').value;
+            if(id === "admin123" && pass === "club789") {
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+            } else { alert("ভুল আইডি বা পাসওয়ার্ড!"); }
+        }
+
+        async function saveToGitHub() {
+            // এখানে আমরা পরে গিটহাব এপিআই কানেক্ট করব
+            document.getElementById('status').innerText = "সেভ হচ্ছে...";
+        }
+    </script>
+</body>
+</html>
         </div>
 
         <div id="admin-content">
