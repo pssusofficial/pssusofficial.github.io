@@ -23,16 +23,16 @@
 
     <div class="admin-box">
         <div id="login-form">
-            <h2>অ্যাডমিন প্রবেশ</h2>
+            <h2>Admin Login</h2>
             <div class="input-group">
-                <label>ইউজার আইডি:</label>
+                <label>user id:</label>
                 <input type="text" id="user-id" placeholder="ID দিন">
             </div>
             <div class="input-group">
-                <label>পাসওয়ার্ড:</label>
+                <label>password:</label>
                 <input type="password" id="user-pass" placeholder="Password দিন">
             </div>
-            <button class="btn" onclick="login()">লগইন করুন</button>
+            <button class="btn" onclick="login()">Login</button>
             <p id="login-error" style="color: red; display: none; text-align: center;">ভুল আইডি বা পাসওয়ার্ড!</p>
         </div>
 
@@ -40,8 +40,8 @@
             <h2>ড্যাশবোর্ড</h2>
             
             <div class="token-area">
-                <label style="color: #e67e22;">গিটহাব টোকেন (Security Key):</label>
-                <input type="password" id="gh-token" placeholder="আপনার PAT পেস্ট করুন">
+                <label style="color: #e67e22;">GitHub Token (Security Key):</label>
+                <input type="password" id="gh-token" placeholder="Input PAT">
                 <p class="warning">*এই টোকেনটি কোথাও সেভ হবে না, তাই প্রতিবার ব্যবহারের সময় দিতে হবে।</p>
             </div>
 
