@@ -2,41 +2,44 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>PSSUS Admin - সহজ ইনপুট</title>
+    <title>PSSUS Admin - স্মার্ট লগইন</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; padding: 20px; }
         .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         h2 { color: #1a5276; text-align: center; }
         input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         .btn { background: #1a5276; color: white; border: none; padding: 12px; width: 100%; cursor: pointer; border-radius: 8px; font-size: 16px; font-weight: bold; }
+        .btn:hover { background: #154360; }
         #dashboard { display: none; }
         .input-group { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee; }
         #status { text-align: center; font-weight: bold; margin-top: 15px; }
+        .token-info { font-size: 12px; color: #27ae60; text-align: center; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="login-section">
-        <h2>অ্যাডমিন লগইন</h2>
+        <h2>অ্যাডমিন প্রবেশ</h2>
         <input type="text" id="user-id" placeholder="ইউজার আইডি">
         <input type="password" id="user-pass" placeholder="পাসওয়ার্ড">
-        <button class="btn" onclick="checkLogin()">প্রবেশ করুন</button>
+        <input type="password" id="login-token" placeholder="GitHub Token (একবার দিলেই হবে)">
+        <button class="btn" onclick="checkLogin()">লগইন করুন</button>
     </div>
 
     <div id="dashboard">
         <h2>সদস্য যোগ করুন</h2>
-        
-        <input type="password" id="gh-token" placeholder="আপনার GitHub Token দিন">
+        <p class="token-info">● টোকেন সচল আছে</p>
         
         <div class="input-group">
             <input type="text" id="m-name" placeholder="সদস্যের নাম">
             <input type="text" id="m-role" placeholder="পদবী (যেমন: সভাপতি)">
             <input type="text" id="m-phone" placeholder="মোবাইল নম্বর">
-            <input type="text" id="m-img" placeholder="ছবির লিঙ্ক (ঐচ্ছিক)" value="https://via.placeholder.com/100">
+            <input type="text" id="m-img" placeholder="ছবির লিঙ্ক" value="https://via.placeholder.com/100">
         </div>
 
         <button class="btn" onclick="addNewMember()">সদস্য তালিকায় যোগ করুন</button>
+        <button class="btn" onclick="logout()" style="background:#c0392b; margin-top:10px;">লগ আউট</button>
         <p id="status"></p>
     </div>
 </div>
@@ -44,54 +47,63 @@
 <script>
     const repo = "pssusofficial/pssusofficial.github.io";
     const path = "data.json";
+    let sessionToken = ""; // এখানে টোকেনটি জমা থাকবে
 
     function checkLogin() {
         const id = document.getElementById('user-id').value.trim();
         const pass = document.getElementById('user-pass').value.trim();
+        const token = document.getElementById('login-token').value.trim();
+
         if(id === "admin123" && pass === "club789") {
+            if(!token) {
+                alert("দয়া করে গিটহাব টোকেনটি দিন!");
+                return;
+            }
+            sessionToken = token; // টোকেনটি ভ্যারিয়েবলে সেভ করে রাখা হলো
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
-        } else { alert("ভুল আইডি বা পাসওয়ার্ড!"); }
+        } else { 
+            alert("ভুল আইডি বা পাসওয়ার্ড!"); 
+        }
     }
 
     async function addNewMember() {
-        const token = document.getElementById('gh-token').value.trim();
         const name = document.getElementById('m-name').value.trim();
         const role = document.getElementById('m-role').value.trim();
         const phone = document.getElementById('m-phone').value.trim();
         const img = document.getElementById('m-img').value.trim();
         const status = document.getElementById('status');
 
-        if(!token || !name || !role) { alert("সবগুলো ঘর পূরণ করুন!"); return; }
+        if(!name || !role) { alert("নাম এবং পদবী অবশ্যই দিন!"); return; }
 
         status.style.color = "blue";
-        status.innerText = "প্রক্রিয়াধীন...";
+        status.innerText = "গিটহাবে সেভ হচ্ছে...";
 
         try {
-            // ১. বর্তমান ডাটা নামিয়ে আনা
             const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?t=${new Date().getTime()}`, {
-                headers: { 'Authorization': `token ${token}` }
+                headers: { 'Authorization': `token ${sessionToken}` }
             });
+            
+            if(!res.ok) throw new Error("টোকেন সঠিক নয় অথবা ফাইল পাওয়া যায়নি।");
+            
             const fileData = await res.json();
             const sha = fileData.sha;
-            // বেস৬৪ থেকে টেক্সটে রূপান্তর
             let currentContent = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
 
-            // ২. নতুন সদস্য যোগ করা
             const newMember = {
-                id: Date.now(), // ইউনিক আইডি
+                id: Date.now(),
                 name: name,
                 role: role,
                 phone: phone,
                 image: img
             };
+            
             currentContent.members.push(newMember);
 
-            // ৩. গিটহাবে নতুন ডাটা পাঠানো
             const updateRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `token ${token}`,
+                    'Authorization': `token ${sessionToken}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -103,18 +115,22 @@
 
             if(updateRes.ok) {
                 status.style.color = "green";
-                status.innerText = "সফলভাবে সদস্য যোগ করা হয়েছে!";
-                // ফর্ম ক্লিয়ার করা
+                status.innerText = "সফলভাবে সেভ হয়েছে!";
                 document.getElementById('m-name').value = '';
                 document.getElementById('m-role').value = '';
                 document.getElementById('m-phone').value = '';
             } else {
-                throw new Error("গিটহাব আপডেট করতে ব্যর্থ হয়েছে।");
+                throw new Error("গিটহাব আপডেট করতে পারেনি।");
             }
         } catch (err) {
             status.style.color = "red";
             status.innerText = "ত্রুটি: " + err.message;
         }
+    }
+
+    function logout() {
+        sessionToken = "";
+        location.reload(); // পেজ রিফ্রেশ করে লগ আউট করা
     }
 </script>
 
