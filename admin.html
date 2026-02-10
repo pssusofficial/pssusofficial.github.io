@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PSSUS Admin - Pro Panel</title>
     <style>
     /* বেসিক সেটিংস */
@@ -154,16 +154,20 @@
         <h3>সদস্য তালিকা</h3>
         <input type="text" id="search-input" class="search-box" placeholder="খুঁজুন (নাম বা পদবী)..." onkeyup="filterMembers()">
         
-        <table class="member-table">
-            <thead>
-                <tr>
-                    <th>নাম</th>
-                    <th>সেকশন</th>
-                    <th>অ্যাকশন</th>
-                </tr>
-            </thead>
-            <tbody id="member-list-body"></tbody>
-        </table>
+        <div class="table-wrapper">
+         <table class="member-table">
+          <thead>
+            <tr>
+                <th>নাম ও পদবী</th>
+                <th>সেকশন</th>
+                <th>অ্যাকশন</th>
+            </tr>
+          </thead>
+          <tbody id="member-list-body">
+            </tbody>
+          </table>
+         </div>
+
 
         <button class="btn btn-red" onclick="logout()" style="margin-top:25px;">লগ আউট</button>
     </div>
