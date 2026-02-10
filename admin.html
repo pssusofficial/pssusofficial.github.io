@@ -4,23 +4,110 @@
     <meta charset="UTF-8">
     <title>PSSUS Admin - Pro Panel</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 15px; }
-        .container { max-width: 650px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h2, h3 { color: #1a5276; text-align: center; margin-bottom: 15px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
-        .btn { background: #1a5276; color: white; border: none; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; width: 100%; transition: 0.3s; }
-        .btn-red { background: #c0392b; }
-        .btn-green { background: #27ae60; }
-        .btn:active { transform: scale(0.98); }
-        #dashboard { display: none; }
-        .input-group { background: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 20px; }
-        
-        .member-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-        .member-table th, .member-table td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
-        .action-btns { display: flex; gap: 5px; }
-        #status { text-align: center; font-weight: bold; margin: 10px 0; min-height: 20px; }
-        .search-box { border: 2px solid #1a5276; }
+    /* বেসিক সেটিংস */
+    body { 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        background: #f0f2f5; 
+        margin: 0; 
+        padding: 10px; 
+        display: flex;
+        justify-content: center;
+    }
+
+    /* মূল কন্টেইনার - এটি স্ক্রিন অনুযায়ী ছোট-বড় হবে */
+    .container { 
+        width: 100%; 
+        max-width: 600px; /* পিসিতে এর চেয়ে বড় হবে না */
+        background: white; 
+        padding: 20px; 
+        border-radius: 12px; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+        box-sizing: border-box; /* প্যাডিং যেন সাইজ নষ্ট না করে */
+    }
+
+    h2, h3 { color: #1a5276; text-align: center; margin-bottom: 15px; }
+
+    /* ইনপুট বক্সগুলো মোবাইল ফ্রেন্ডলি করা */
+    input, select, datalist { 
+        width: 100%; 
+        padding: 12px; 
+        margin: 8px 0; 
+        border: 1px solid #ddd; 
+        border-radius: 8px; 
+        box-sizing: border-box; 
+        font-size: 16px; /* মোবাইলে জুম হওয়া ঠেকাতে ১৬ পিক্সেল বেস্ট */
+    }
+
+    /* বাটনগুলো বড় এবং ক্লিকযোগ্য করা */
+    .btn { 
+        background: #1a5276; 
+        color: white; 
+        border: none; 
+        padding: 14px; 
+        cursor: pointer; 
+        border-radius: 8px; 
+        font-size: 16px; 
+        font-weight: bold; 
+        width: 100%; 
+        margin-top: 5px;
+        transition: 0.3s;
+    }
+    
+    .btn:active { transform: scale(0.98); } /* ক্লিক করলে দেবে যাওয়ার মতো ইফেক্ট */
+    .btn-red { background: #c0392b; }
+    .btn-green { background: #27ae60; }
+
+    /* ইনপুট গ্রুপ সেকশন */
+    .input-group { 
+        background: #f9f9f9; 
+        padding: 15px; 
+        border-radius: 10px; 
+        border: 1px solid #eee; 
+        margin-bottom: 20px; 
+    }
+
+    /* মেম্বার লিস্টের টেবিলটি রেসপন্সিভ করা */
+    .table-wrapper {
+        overflow-x: auto; /* স্ক্রিন খুব ছোট হলে টেবিলটি ডানে-বামে সরানো যাবে */
+        margin-top: 15px;
+    }
+
+    .member-table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        min-width: 400px; /* টেবিল যেন খুব বেশি চ্যাপ্টা না হয়ে যায় */
+    }
+
+    .member-table th, .member-table td { 
+        padding: 12px 8px; 
+        border-bottom: 1px solid #eee; 
+        text-align: left; 
+        font-size: 14px;
+    }
+
+    .action-btns { display: flex; gap: 5px; }
+
+    /* সার্চ বক্সের জন্য বিশেষ স্টাইল */
+    .search-box { 
+        border: 2px solid #1a5276; 
+        background: #fff url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+    }
+
+    #status { text-align: center; font-weight: bold; margin: 10px 0; min-height: 24px; }
+
+    /* মোবাইল স্ক্রিনের জন্য বিশেষ নিয়ম (Media Query) */
+    @media (max-width: 480px) {
+        body { padding: 5px; }
+        .container { padding: 15px; border-radius: 8px; }
+        h2 { font-size: 20px; }
+        .btn { padding: 12px; font-size: 14px; }
+    }
+ 
     </style>
+    
+
+        
+        
 </head>
 <body>
 
